@@ -1,5 +1,5 @@
 00010000 T _start
-0001000d T kernel_init
+00010007 T kernel_init
 00013000 D magic
 00013004 D message
 00013012 B __bss_start
