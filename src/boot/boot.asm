@@ -3,7 +3,6 @@
 mov ax, 3
 int 0x10
 
-
 mov ax, 0
 mov ds, ax
 mov es, ax
@@ -23,7 +22,6 @@ cmp word [0x1000], 0x55aa
 jnz error
 
 jmp 0:0x1002
-
 
 jmp $
 
