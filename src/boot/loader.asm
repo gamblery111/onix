@@ -1,39 +1,39 @@
 [org 0x1000]
 
-dw 0x55aa; Ä§Êı£¬ÓÃÓÚÅĞ¶Ï´íÎó
+dw 0x55aa; é­”æ•°ï¼Œç”¨äºåˆ¤æ–­é”™è¯¯
 
-; ´òÓ¡×Ö·û´®
+; æ‰“å°å­—ç¬¦ä¸²
 mov si, loading
 call print 
 
-; xchg bx, bx; ¶Ïµã
+; xchg bx, bx; æ–­ç‚¹
 
 detect_memory:
-    ; ½« ebx ÖÃÎª 0
+    ; å°† ebx ç½®ä¸º 0
     xor ebx, ebx
 
-    ; es:di ½á¹¹ÌåµÄ»º´æÎ»ÖÃ
+    ; es:di ç»“æ„ä½“çš„ç¼“å­˜ä½ç½®
     mov ax, 0
     mov es, ax
     mov edi, ards_buffer
 
-    mov edx, 0x534d4150; ¹Ì¶¨Ç©Ãû
+    mov edx, 0x534d4150; å›ºå®šç­¾å
 
 .next:
-    ; ×Ó¹¦ÄÜºÅ
+    ; å­åŠŸèƒ½å·
     mov eax, 0xe820
-    ; ards ½á¹¹µÄ´óĞ¡ (×Ö½Ú)
+    ; ards ç»“æ„çš„å¤§å° (å­—èŠ‚)
     mov ecx, 20
-    ; µ÷ÓÃ 0x15 ÏµÍ³µ÷ÓÃ
+    ; è°ƒç”¨ 0x15 ç³»ç»Ÿè°ƒç”¨
     int 0x15
 
-    ; Èç¹û CF ÖÃÎ»£¬±íÊ¾³ö´í
+    ; å¦‚æœ CF ç½®ä½ï¼Œè¡¨ç¤ºå‡ºé”™
     jc error
 
-    ; ½«»º´æÖ¸ÕëÖ¸ÏòÏÂÒ»¸ö½á¹¹Ìå
+    ; å°†ç¼“å­˜æŒ‡é’ˆæŒ‡å‘ä¸‹ä¸€ä¸ªç»“æ„ä½“
     add di, cx
 
-    ; ½«½á¹¹ÌåÊıÁ¿¼ÓÒ»
+    ; å°†ç»“æ„ä½“æ•°é‡åŠ ä¸€
     inc word [ards_count]
 
     cmp ebx, 0
@@ -49,23 +49,23 @@ detect_memory:
     jmp prepare_protected_mode
 
 prepare_protected_mode:
-    ; xchg bx, bx; ¶Ïµã
+    ; xchg bx, bx; æ–­ç‚¹
 
-    cli; ¹Ø±ÕÖĞ¶Ï
+    cli; å…³é—­ä¸­æ–­
 
-    ; ´ò¿ª A20 Ïß
+    ; æ‰“å¼€ A20 çº¿
     in al,  0x92
     or al, 0b10
     out 0x92, al
 
-    lgdt [gdt_ptr]; ¼ÓÔØ gdt
+    lgdt [gdt_ptr]; åŠ è½½ gdt
 
-    ; Æô¶¯±£»¤Ä£Ê½
+    ; å¯åŠ¨ä¿æŠ¤æ¨¡å¼
     mov eax, cr0
     or eax, 1
     mov cr0, eax
 
-    ; ÓÃÌø×ªÀ´Ë¢ĞÂ»º´æ£¬ÆôÓÃ±£»¤Ä£Ê½
+    ; ç”¨è·³è½¬æ¥åˆ·æ–°ç¼“å­˜ï¼Œå¯ç”¨ä¿æŠ¤æ¨¡å¼
     jmp dword code_selector:protect_mode
 
 print:
@@ -88,73 +88,73 @@ detecting:
 error:
     mov si, .msg
     call print
-    hlt; ÈÃ CPU Í£Ö¹
+    hlt; è®© CPU åœæ­¢
     jmp $
     .msg db "Loading Error!!!", 10, 13, 0
 
 [bits 32]
 protect_mode:
-    ; xchg bx, bx; ¶Ïµã
+    ; xchg bx, bx; æ–­ç‚¹
     mov ax, data_selector
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
-    mov ss, ax; ³õÊ¼»¯¶Î¼Ä´æÆ÷
+    mov ss, ax; åˆå§‹åŒ–æ®µå¯„å­˜å™¨
 
-    mov esp, 0x10000; ĞŞ¸ÄÕ»¶¥
+    mov esp, 0x10000; ä¿®æ”¹æ ˆé¡¶
 
-    mov edi, 0x10000; ¶ÁÈ¡µÄÄ¿±êÄÚ´æ
-    mov ecx, 10; ÆğÊ¼ÉÈÇø
-    mov bl, 200; ÉÈÇøÊıÁ¿
+    mov edi, 0x10000; è¯»å–çš„ç›®æ ‡å†…å­˜
+    mov ecx, 10; èµ·å§‹æ‰‡åŒº
+    mov bl, 200; æ‰‡åŒºæ•°é‡
 
     call read_disk
 
     jmp  dword code_selector:0x10000
 
-    ud2; ±íÊ¾³ö´í
+    ud2; è¡¨ç¤ºå‡ºé”™
 
 read_disk:
 
-    ; ÉèÖÃ¶ÁĞ´ÉÈÇøµÄÊıÁ¿
+    ; è®¾ç½®è¯»å†™æ‰‡åŒºçš„æ•°é‡
     mov dx, 0x1f2
     mov al, bl
     out dx, al
 
     inc dx; 0x1f3
-    mov al, cl; ÆğÊ¼ÉÈÇøµÄÇ°°ËÎ»
+    mov al, cl; èµ·å§‹æ‰‡åŒºçš„å‰å…«ä½
     out dx, al
 
     inc dx; 0x1f4
     shr ecx, 8
-    mov al, cl; ÆğÊ¼ÉÈÇøµÄÖĞ°ËÎ»
+    mov al, cl; èµ·å§‹æ‰‡åŒºçš„ä¸­å…«ä½
     out dx, al
 
     inc dx; 0x1f5
     shr ecx, 8
-    mov al, cl; ÆğÊ¼ÉÈÇøµÄ¸ß°ËÎ»
+    mov al, cl; èµ·å§‹æ‰‡åŒºçš„é«˜å…«ä½
     out dx, al
 
     inc dx; 0x1f6
     shr ecx, 8
-    and cl, 0b1111; ½«¸ßËÄÎ»ÖÃÎª 0
+    and cl, 0b1111; å°†é«˜å››ä½ç½®ä¸º 0
 
     mov al, 0b1110_0000;
     or al, cl
-    out dx, al; Ö÷ÅÌ - LBA Ä£Ê½
+    out dx, al; ä¸»ç›˜ - LBA æ¨¡å¼
 
     inc dx; 0x1f7
-    mov al, 0x20; ¶ÁÓ²ÅÌ
+    mov al, 0x20; è¯»ç¡¬ç›˜
     out dx, al
 
-    xor ecx, ecx; ½« ecx Çå¿Õ
-    mov cl, bl; µÃµ½¶ÁĞ´ÉÈÇøµÄÊıÁ¿
+    xor ecx, ecx; å°† ecx æ¸…ç©º
+    mov cl, bl; å¾—åˆ°è¯»å†™æ‰‡åŒºçš„æ•°é‡
 
     .read:
-        push cx; ±£´æ cx
-        call .waits; µÈ´ıÊı¾İ×¼±¸Íê±Ï
-        call .reads; ¶ÁÈ¡Ò»¸öÉÈÇø
-        pop cx; »Ö¸´ cx
+        push cx; ä¿å­˜ cx
+        call .waits; ç­‰å¾…æ•°æ®å‡†å¤‡å®Œæ¯•
+        call .reads; è¯»å–ä¸€ä¸ªæ‰‡åŒº
+        pop cx; æ¢å¤ cx
         loop .read
 
     ret
@@ -163,8 +163,8 @@ read_disk:
         mov dx, 0x1f7
         .check:
             in al, dx
-            jmp $+2; nop Ö±½ÓÌø×ªµ½ÏÂÒ»ĞĞ
-            jmp $+2; Ò»µãµãÑÓ³Ù
+            jmp $+2; nop ç›´æ¥è·³è½¬åˆ°ä¸‹ä¸€è¡Œ
+            jmp $+2; ä¸€ç‚¹ç‚¹å»¶è¿Ÿ
             jmp $+2
             and al, 0b1000_1000
             cmp al, 0b0000_1000
@@ -173,10 +173,10 @@ read_disk:
 
     .reads:
         mov dx, 0x1f0
-        mov cx, 256; Ò»¸öÉÈÇø 256 ×Ö
+        mov cx, 256; ä¸€ä¸ªæ‰‡åŒº 256 å­—
         .readw:
             in ax, dx
-            jmp $+2; Ò»µãµãÑÓ³Ù
+            jmp $+2; ä¸€ç‚¹ç‚¹å»¶è¿Ÿ
             jmp $+2
             jmp $+2
             mov [edi], ax
@@ -187,34 +187,34 @@ read_disk:
 code_selector equ (1 << 3)
 data_selector equ (2 << 3)
 
-memory_base equ 0; ÄÚ´æ¿ªÊ¼µÄÎ»ÖÃ£º»ùµØÖ·
+memory_base equ 0; å†…å­˜å¼€å§‹çš„ä½ç½®ï¼šåŸºåœ°å€
 
-; ÄÚ´æ½çÏŞ 4G / 4K - 1
+; å†…å­˜ç•Œé™ 4G / 4K - 1
 memory_limit equ ((1024 * 1024 * 1024 * 4) / (1024 * 4)) - 1
 
 gdt_ptr:
     dw (gdt_end - gdt_base) - 1
     dd gdt_base
 gdt_base:
-    dd 0, 0; NULL ÃèÊö·û
+    dd 0, 0; NULL æè¿°ç¬¦
 gdt_code:
-    dw memory_limit & 0xffff; ¶Î½çÏŞ 0 ~ 15 Î»
-    dw memory_base & 0xffff; »ùµØÖ· 0 ~ 15 Î»
-    db (memory_base >> 16) & 0xff; »ùµØÖ· 16 ~ 23 Î»
-    ; ´æÔÚ - dlp 0 - S _ ´úÂë - ·ÇÒÀ´Ó - ¿É¶Á - Ã»ÓĞ±»·ÃÎÊ¹ı
+    dw memory_limit & 0xffff; æ®µç•Œé™ 0 ~ 15 ä½
+    dw memory_base & 0xffff; åŸºåœ°å€ 0 ~ 15 ä½
+    db (memory_base >> 16) & 0xff; åŸºåœ°å€ 16 ~ 23 ä½
+    ; å­˜åœ¨ - dlp 0 - S _ ä»£ç  - éä¾ä» - å¯è¯» - æ²¡æœ‰è¢«è®¿é—®è¿‡
     db 0b_1_00_1_1_0_1_0;
-    ; 4k - 32 Î» - ²»ÊÇ 64 Î» - ¶Î½çÏŞ 16 ~ 19
+    ; 4k - 32 ä½ - ä¸æ˜¯ 64 ä½ - æ®µç•Œé™ 16 ~ 19
     db 0b1_1_0_0_0000 | (memory_limit >> 16) & 0xf;
-    db (memory_base >> 24) & 0xff; »ùµØÖ· 24 ~ 31 Î»
+    db (memory_base >> 24) & 0xff; åŸºåœ°å€ 24 ~ 31 ä½
 gdt_data:
-    dw memory_limit & 0xffff; ¶Î½çÏŞ 0 ~ 15 Î»
-    dw memory_base & 0xffff; »ùµØÖ· 0 ~ 15 Î»
-    db (memory_base >> 16) & 0xff; »ùµØÖ· 16 ~ 23 Î»
-    ; ´æÔÚ - dlp 0 - S _ Êı¾İ - ÏòÉÏ - ¿ÉĞ´ - Ã»ÓĞ±»·ÃÎÊ¹ı
+    dw memory_limit & 0xffff; æ®µç•Œé™ 0 ~ 15 ä½
+    dw memory_base & 0xffff; åŸºåœ°å€ 0 ~ 15 ä½
+    db (memory_base >> 16) & 0xff; åŸºåœ°å€ 16 ~ 23 ä½
+    ; å­˜åœ¨ - dlp 0 - S _ æ•°æ® - å‘ä¸Š - å¯å†™ - æ²¡æœ‰è¢«è®¿é—®è¿‡
     db 0b_1_00_1_0_0_1_0;
-    ; 4k - 32 Î» - ²»ÊÇ 64 Î» - ¶Î½çÏŞ 16 ~ 19
+    ; 4k - 32 ä½ - ä¸æ˜¯ 64 ä½ - æ®µç•Œé™ 16 ~ 19
     db 0b1_1_0_0_0000 | (memory_limit >> 16) & 0xf;
-    db (memory_base >> 24) & 0xff; »ùµØÖ· 24 ~ 31 Î»
+    db (memory_base >> 24) & 0xff; åŸºåœ°å€ 24 ~ 31 ä½
 gdt_end:
 
 ards_count:
