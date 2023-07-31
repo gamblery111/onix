@@ -2,5 +2,7 @@
 *.log
 
 # 过滤编译生成的文件
-build/
+build/* 
 *.ini
+*.o
+*.s
