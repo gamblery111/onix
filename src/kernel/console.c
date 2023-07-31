@@ -1,5 +1,6 @@
 #include "onix/console.h"
 #include "onix/io.h"
+#include "onix/string.h"
 
 #define CRT_ADDR_REG 0x3D4 // CRT(6845)索引寄存器
 #define CRT_DATA_REG 0x3D5 // CRT(6845)数据寄存器
@@ -29,16 +30,16 @@
 #define CR 0x0D  // \r
 #define DEL 0x7F
 
-static u32 screen; //当前显示器开始的位置
+static u32 screen; // 当前显示器开始的位置
 
-static u32 pos; //记录当前光标的内存位置
+static u32 pos; // 记录当前光标的内存位置
 
-static x, y; //当前光标的位置
+static x, y; // 当前光标的位置
 
-static u8 attr = 7; //字符样式
+static u8 attr = 7;        // 字符样式
 static u16 erase = 0x0720; // 空格
 
-//获得当前显示器的开始位置
+// 获得当前显示器的开始位置
 static void get_screen()
 {
     outb(CRT_ADDR_REG, CRT_START_ADDR_H); // 开始位置高地址
@@ -50,21 +51,166 @@ static void get_screen()
     screen += MEM_BASE;
 }
 
-static void ser_screen()
+// 设置当前显示器的开始位置
+static void set_screen()
 {
     outb(CRT_ADDR_REG, CRT_START_ADDR_H); // 开始位置高地址
-    outb(CRT_DATA_REG, ((screen - MEM_BASE) >> 9) & 0xff); 
+    outb(CRT_DATA_REG, ((screen - MEM_BASE) >> 9) & 0xff);
     outb(CRT_ADDR_REG, CRT_START_ADDR_L);
-    outb(CRT_DATA_REG, ((screen - MEM_BASE) >> 1) & 0xff); 
+    outb(CRT_DATA_REG, ((screen - MEM_BASE) >> 1) & 0xff);
 }
 
-void console_clear();
+// 获得当前光标位置
+static void get_cursor()
+{
+    outb(CRT_ADDR_REG, CRT_CURSOR_H); // 高地址
+    pos = inb(CRT_DATA_REG) << 8;     // 高8位
+    outb(CRT_ADDR_REG, CRT_CURSOR_L); // 低地址
+    pos |= inb(CRT_DATA_REG);
 
-void console_write(char *buf, u32 count);
+    get_screen();
+
+    pos <<= 1;
+    pos += MEM_BASE;
+
+    u32 delta = (pos - screen) >> 1;
+    x = delta % WIDTH;
+    y = delta / WIDTH;
+}
+
+static void set_cursor()
+{
+    outb(CRT_ADDR_REG, CRT_CURSOR_H); // 光标高地址
+    outb(CRT_DATA_REG, ((pos - MEM_BASE) >> 9) & 0xff);
+    outb(CRT_ADDR_REG, CRT_CURSOR_L);
+    outb(CRT_DATA_REG, ((pos - MEM_BASE) >> 1) & 0xff);
+}
+
+void console_clear()
+{
+    screen = MEM_BASE;
+    pos = MEM_BASE;
+    x = y = 0;
+    set_cursor();
+    set_screen();
+
+    u16 *ptr = (u16 *)MEM_BASE;
+    while (ptr < MEM_END)
+    {
+        *ptr++ = erase;
+    }
+}
+
+// 向上滚一行
+static void scroll_up()
+{
+    if(screen + SCR_SIZE + ROW_SIZE < MEM_END)
+    {
+        u32 *ptr = (u32 *)(screen + SCR_SIZE);
+        for (size_t i = 0; i < WIDTH; i++)
+        {
+            *ptr++ = erase;
+        }
+        screen += ROW_SIZE;
+        pos += ROW_SIZE;
+    }
+    else 
+    {
+        memcpy(MEM_BASE, screen, SCR_SIZE);
+        pos -= (screen - MEM_BASE);
+        screen = MEM_BASE;
+    }
+    set_screen();
+}
+
+static void command_lf()
+{
+    if (y + 1 < HEIGHT)
+    {
+        y++;
+        pos += ROW_SIZE;
+        return;
+    }
+    scroll_up();
+}
+
+static void command_cr()
+{
+    pos -= (x << 1);
+    x = 0;
+}
+
+static void command_bs()
+{
+    if (x)
+    {
+        x--;
+        pos -= 2;
+        *(u16 *)pos = erase;
+    }
+}
+
+static void command_del()
+{
+    *(u16 *)pos = erase;
+}
+
+void console_write(char *buf, u32 count)
+{
+    char ch;
+    char *ptr = (char *)pos;
+    while (count--)
+    {
+        ch = *buf++;
+        switch (ch)
+        {
+        case NUL:
+            break;
+        case BEL:
+
+            break;
+        case BS:
+            command_bs();
+            break;
+        case HT:
+            break;
+        case LF:
+            command_lf();
+            command_cr();
+            break;
+        case VT:
+            break;
+        case FF:
+            command_lf();
+            break;
+        case CR:
+            command_cr();
+            break;
+        case DEL:
+            command_del();
+            break;
+        default:
+            if (x >= WIDTH)
+            {
+                x -= WIDTH;
+                pos -= ROW_SIZE;
+                command_lf();
+            }
+
+            *ptr = ch;
+            ptr++;
+            *ptr = attr;
+            ptr++;
+
+            pos += 2;
+            x++;
+            break;
+        }
+    }
+    set_cursor();
+}
 
 void console_init()
 {
-    // console_clear();
-    get_screen();
-    
+    console_clear();
 }

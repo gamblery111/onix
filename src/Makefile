@@ -77,7 +77,7 @@ qemug: $(BUILD)/master.img
 	-s -S \
 	-m 32M \
 	-boot c \
-	-hda $<
+	-hda $< 
 
 .PHONY: qemu
 qemu: $(BUILD)/master.img
