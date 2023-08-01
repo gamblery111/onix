@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "onix.h": "c",
-        "io.h": "c"
+        "io.h": "c",
+        "task.h": "c",
+        "types.h": "c"
     }
 }

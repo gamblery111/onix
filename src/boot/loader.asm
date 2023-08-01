@@ -42,7 +42,7 @@ detect_memory:
     mov si, detecting
     call print
 
-    xchg bx, bx
+    ; xchg bx, bx
 
     mov byte [0xb8000], 'P'
 
