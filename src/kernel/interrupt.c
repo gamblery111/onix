@@ -3,14 +3,21 @@
 #include <onix/debug.h>
 #include <onix/printk.h>
 
-#define ENTRY_SIZE 0x20
+#define LOGK(fmt, args...) DEBUGK(fmt, ##args)
+// #define LOGK(fmt, args...)
+
+#define ENTRY_SIZE 0x30
+
+#define PIC_M_CTRL 0x20 // 主片的控制端口
+#define PIC_M_DATA 0x21 // 主片的数据端口
+#define PIC_S_CTRL 0xa0 // 从片的控制端口
+#define PIC_S_DATA 0xa1 // 从片的数据端口
+#define PIC_EOI 0x20    // 通知中断控制器中断结束
 
 gate_t idt[IDT_SIZE];
 pointer_t idt_ptr;
-
 handler_t handler_table[IDT_SIZE];
 extern handler_t handler_entry_table[ENTRY_SIZE];
-
 static char *messages[] = {
     "#DE Divide Error\0",
     "#DB RESERVED\0",
@@ -36,6 +43,28 @@ static char *messages[] = {
     "#CP Control Protection Exception\0",
 };
 
+// 通知中断控制器，中断处理结束
+void send_eoi(int vector)
+{
+    if (vector >= 0x20 && vector < 0x28)
+    {
+        outb(PIC_M_CTRL, PIC_EOI);
+    }
+    if (vector >= 0x28 && vector < 0x30)
+    {
+        outb(PIC_M_CTRL, PIC_EOI);
+        outb(PIC_S_CTRL, PIC_EOI);
+    }
+}
+
+u32 counter = 0;
+
+void default_handler(int vector)
+{
+    send_eoi(vector);
+    LOGK("[%d] default interrupt called %d...\n", vector, counter++);
+}
+
 void exception_handler(int vector)
 {
     char *message = NULL;
@@ -50,17 +79,32 @@ void exception_handler(int vector)
 
     printk("Exception : [0x%02X] %s \n", vector, messages[vector]);
     // 阻塞
-    while (true)
-        ;
+    hang();
 }
 
-void interrupt_init()
+void pic_init()
+{
+    outb(PIC_M_CTRL, 0b00010001); // ICW1: 边沿触发, 级联 8259, 需要ICW4.
+    outb(PIC_M_DATA, 0x20);       // ICW2: 起始中断向量号 0x20
+    outb(PIC_M_DATA, 0b00000100); // ICW3: IR2接从片.
+    outb(PIC_M_DATA, 0b00000001); // ICW4: 8086模式, 正常EOI
+
+    outb(PIC_S_CTRL, 0b00010001); // ICW1: 边沿触发, 级联 8259, 需要ICW4.
+    outb(PIC_S_DATA, 0x28);       // ICW2: 起始中断向量号 0x28
+    outb(PIC_S_DATA, 2);          // ICW3: 设置从片连接到主片的 IR2 引脚
+    outb(PIC_S_DATA, 0b00000001); // ICW4: 8086模式, 正常EOI
+
+    outb(PIC_M_DATA, 0b11111110); // 关闭所有中断
+    outb(PIC_S_DATA, 0b11111111); // 关闭所有中断
+}
+
+// 初始化中断描述符，和中断处理函数数组
+void idt_init()
 {
     for (size_t i = 0; i < ENTRY_SIZE; i++)
     {
         gate_t *gate = &idt[i];
         handler_t handler = handler_entry_table[i];
-
         gate->offset0 = (u32)handler & 0xffff;
         gate->offset1 = ((u32)handler >> 16) & 0xffff;
         gate->selector = 1 << 3; // 代码段
@@ -70,14 +114,24 @@ void interrupt_init()
         gate->DPL = 0;           // 内核态
         gate->present = 1;       // 有效
     }
-
     for (size_t i = 0; i < 0x20; i++)
     {
         handler_table[i] = exception_handler;
+    }
+
+    for (size_t i = 20; i < ENTRY_SIZE; i++)
+    {
+        handler_table[i] = default_handler;
     }
 
     idt_ptr.base = (u32)idt;
     idt_ptr.limit = sizeof(idt) - 1;
 
     asm volatile("lidt idt_ptr\n");
+}
+
+void interrupt_init()
+{
+    pic_init();
+    idt_init();
 }

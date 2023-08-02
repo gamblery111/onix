@@ -3,6 +3,10 @@
         "onix.h": "c",
         "io.h": "c",
         "task.h": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "interrupt.h": "c",
+        "global.h": "c",
+        "printk.h": "c",
+        "debug.h": "c"
     }
 }
