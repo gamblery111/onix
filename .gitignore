@@ -3,7 +3,7 @@
 
 # 过滤编译生成的文件
 build/* 
-.vscode/*
+.vscode/settings.json
 *.ini
 *.o
 *.s
