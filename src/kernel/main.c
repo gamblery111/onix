@@ -10,6 +10,7 @@
 #include <onix/task.h>
 #include <onix/interrupt.h>
 #include <onix/stdlib.h>
+#include <onix/rtc.h>
 
 extern void console_init();
 extern void gdt_init();
@@ -24,11 +25,9 @@ void kernel_init()
     console_init();
     gdt_init();
     interrupt_init();
-    // clock_init();
+    clock_init();
     time_init();
-
     rtc_init();
-
     // task_init();
     asm volatile("sti");
     hang();
