@@ -153,6 +153,8 @@ static void command_del()
     *(u16 *)pos = erase;
 }
 
+extern void start_beep();
+
 void console_write(char *buf, u32 count)
 {
     char ch;
@@ -164,7 +166,7 @@ void console_write(char *buf, u32 count)
         case NUL:
             break;
         case BEL:
-
+            start_beep();
             break;
         case BS:
             command_bs();
