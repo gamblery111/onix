@@ -12,7 +12,7 @@
             "program": "${workspaceFolder}/build/kernel.bin",//这个是我放编译好的内核文件的地方，你们看着修改
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}/src",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
