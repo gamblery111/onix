@@ -21,6 +21,7 @@ extern void interrupt_init();
 extern void clock_init();
 extern void time_init();
 extern void rtc_init();
+extern void task_init();
 extern void hang();
 
 void intr_test()
@@ -37,25 +38,10 @@ void kernel_init()
     memory_map_init();
     mapping_init();
     interrupt_init();
-    // clock_init();
+    clock_init();
     // time_init();
     // rtc_init();
 
-    bool intr = interrupt_disable();
+    task_init();
     set_interrupt_state(true);
-
-    LOGK("%d\n", intr);
-    LOGK("%d\n", get_interrupt_state());
-
-    BMB;
-
-    intr = interrupt_disable();
-
-    BMB;
-    set_interrupt_state(true);
-
-    LOGK("%d\n", intr);
-    LOGK("%d\n", get_interrupt_state());
-    
-    hang();
 }
