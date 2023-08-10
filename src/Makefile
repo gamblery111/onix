@@ -41,6 +41,7 @@ $(BUILD)/kernel.bin: \
 	$(BUILD)/kernel/debug.o  \
 	$(BUILD)/kernel/global.o  \
 	$(BUILD)/kernel/task.o  \
+	$(BUILD)/kernel/gate.o \
 	$(BUILD)/kernel/schedule.o  \
 	$(BUILD)/kernel/interrupt.o  \
 	$(BUILD)/kernel/handler.o  \
@@ -106,11 +107,11 @@ QEMU:= qemu-system-i386 \
 
 .PHONY: qemu
 qemu: $(BUILD)/master.img
-	$(QEMU)
+		$(QEMU)
 
 .PHONY: qemug
 qemug: $(BUILD)/master.img
-	$(QEMU) -s -S
+		$(QEMU) -s -S
 
 $(BUILD)/master.vmdk: $(BUILD)/master.img
 	qemu-img convert -O vmdk $< $@

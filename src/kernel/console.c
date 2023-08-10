@@ -1,6 +1,7 @@
 #include "onix/console.h"
 #include "onix/io.h"
 #include "onix/string.h"
+#include <onix/interrupt.h>
 
 #define CRT_ADDR_REG 0x3D4 // CRT(6845)索引寄存器
 #define CRT_DATA_REG 0x3D5 // CRT(6845)数据寄存器
@@ -110,7 +111,7 @@ static void scroll_up()
         pos -= (screen - MEM_BASE);
         screen = MEM_BASE;
     }
-    
+
     u32 *ptr = (u32 *)(screen + SCR_SIZE);
     for (size_t i = 0; i < WIDTH; i++)
     {
@@ -157,6 +158,8 @@ extern void start_beep();
 
 void console_write(char *buf, u32 count)
 {
+    bool intr = interrupt_disable(); // 禁止中断
+
     char ch;
     while (count--)
     {
@@ -206,6 +209,9 @@ void console_write(char *buf, u32 count)
         }
     }
     set_cursor();
+
+    // 恢复中断
+    set_interrupt_state(intr);
 }
 
 void console_init()
