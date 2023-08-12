@@ -240,7 +240,6 @@ void mapping_init()
     // 设置 cr3 寄存器
     set_cr3((u32)pde);
 
-    BMB;
     // 分页有效
     enable_page();
 }
