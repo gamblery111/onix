@@ -10,8 +10,6 @@ _start:
     push ebx; ards_count
     push eax; magic
 
-    call console_init; 控制台初始化
-    call memory_init; 内存初始化
     call console_init   ; 控制台初始化
     call gdt_init       ; 全局描述符初始化
     call memory_init    ; 内存初始化

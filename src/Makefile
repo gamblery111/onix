@@ -3,17 +3,13 @@ SRC:=.
 
 ENTRYPOINT:= 0x10000
 
-CFLAGS:= -m32 					
-# CFLAGS+= -march=pentium			
-CFLAGS+= -fno-builtin			
-CFLAGS+= -nostdinc				
-CFLAGS+= -fno-pic				
-CFLAGS+= -fno-pie				
-CFLAGS+= -nostdlib				
-CFLAGS+= -fno-stack-protector	
-# CFLAGS+= -Werror
-# CFLAGS+= -DONIX					
-# CFLAGS+= -DONIX_DEBUG		
+CFLAGS:= -m32 # 32 位的程序
+CFLAGS+= -fno-builtin	# 不需要 gcc 内置函数
+CFLAGS+= -nostdinc		# 不需要标准头文件
+CFLAGS+= -fno-pic		# 不需要位置无关的代码  position independent code
+CFLAGS+= -fno-pie		# 不需要位置无关的可执行程序 position independent executable
+CFLAGS+= -nostdlib		# 不需要标准库
+CFLAGS+= -fno-stack-protector	# 不需要栈保护
 CFLAGS:=$(strip ${CFLAGS})
 
 DEBUG:= -g

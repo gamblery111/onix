@@ -124,7 +124,6 @@ static void task_setup()
 
 u32 thread_a()
 {
-    BMB;
     set_interrupt_state(true);
 
     while (true)
@@ -160,5 +159,4 @@ void task_init()
     task_create(thread_a, "a", 5, KERNEL_USER);
     task_create(thread_b, "b", 5, KERNEL_USER);
     task_create(thread_c, "c", 5, KERNEL_USER);
-    schedule();
-}
+}   

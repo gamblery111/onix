@@ -158,6 +158,7 @@ void exception_handler(
     hang();
 }
 
+// 初始化中断控制器
 void pic_init()
 {
     outb(PIC_M_CTRL, 0b00010001); // ICW1: 边沿触发, 级联 8259, 需要ICW4.
@@ -181,6 +182,7 @@ void idt_init()
     {
         gate_t *gate = &idt[i];
         handler_t handler = handler_entry_table[i];
+        
         gate->offset0 = (u32)handler & 0xffff;
         gate->offset1 = ((u32)handler >> 16) & 0xffff;
         gate->selector = 1 << 3; // 代码段
@@ -190,6 +192,7 @@ void idt_init()
         gate->DPL = 0;           // 内核态
         gate->present = 1;       // 有效
     }
+
     for (size_t i = 0; i < 0x20; i++)
     {
         handler_table[i] = exception_handler;
@@ -199,9 +202,6 @@ void idt_init()
     {
         handler_table[i] = default_handler;
     }
-
-    idt_ptr.base = (u32)idt;
-    idt_ptr.limit = sizeof(idt) - 1;
 
     // 初始化系统调用
     gate_t *gate = &idt[0x80];
@@ -213,6 +213,9 @@ void idt_init()
     gate->segment = 0;       // 系统段
     gate->DPL = 3;           // 用户态
     gate->present = 1;       // 有效
+
+    idt_ptr.base = (u32)idt;
+    idt_ptr.limit = sizeof(idt) - 1;
 
     asm volatile("lidt idt_ptr\n");
 }

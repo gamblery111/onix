@@ -161,7 +161,7 @@ handler_entry_table:
     dd interrupt_handler_0x2e
     dd interrupt_handler_0x2f
 
-    section .text
+section .text
 
 extern syscall_check
 extern syscall_table

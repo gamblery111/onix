@@ -23,7 +23,6 @@ outb:
     push ebp
     mov ebp, esp ;保存栈帧
 
-    xor eax, eax 
     mov edx, [ebp + 8] ; port
     mov eax, [ebp + 12] ; value
     out dx, al ;将 al 中的 8bit 输出到 dx

@@ -240,6 +240,7 @@ void mapping_init()
     // 分页有效
     enable_page();
 }
+
 static page_entry_t *get_pde()
 {
     return (page_entry_t *)(0xfffff000);

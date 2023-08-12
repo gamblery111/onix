@@ -21,7 +21,6 @@
 
 #define NUL 0x00
 #define ENQ 0x05
-#define ESC 0x1B // ESC
 #define BEL 0x07 // \a
 #define BS 0x08  // \b
 #define HT 0x09  // \t
