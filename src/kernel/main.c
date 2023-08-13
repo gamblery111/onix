@@ -29,12 +29,13 @@ void kernel_init()
     mapping_init();
     interrupt_init();
     clock_init();
-    
+
     // time_init();
     // rtc_init();
 
     task_init();
     syscall_init();
 
-    set_interrupt_state(true);
+    list_test();
+    // set_interrupt_state(true);
 }
