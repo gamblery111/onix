@@ -12,6 +12,12 @@
 // 用户栈顶地址 128M
 #define USER_STACK_TOP 0x8000000
 
+// 用户栈最大 2M
+#define USER_STACK_SIZE 0x200000
+
+// 用户栈底地址 128M - 2M
+#define USER_STACK_BOTTOM (USER_STACK_TOP - USER_STACK_SIZE)
+
 // 内核页目录索引
 #define KERNEL_PAGE_DIR 0x1000
 
