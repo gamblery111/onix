@@ -36,6 +36,9 @@ typedef struct page_entry_t
     u32 index : 20;  // 页索引
 } _packed page_entry_t;
 
+// 得到 cr2 寄存器
+u32 get_cr2();
+
 // 得到 cr3 寄存器
 u32 get_cr3();
 
@@ -53,5 +56,11 @@ void link_page(u32 vaddr);
 
 // 去掉 vaddr 对应的物理内存映射
 void unlink_page(u32 vaddr);
+
+// 拷贝页目录
+page_entry_t *copy_pde();
+
+// 系统调用 brk
+int32 sys_brk(void *addr);
 
 #endif

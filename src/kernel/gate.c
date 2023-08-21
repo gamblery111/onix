@@ -4,10 +4,11 @@
 #include <onix/syscall.h>
 #include <onix/task.h>
 #include <onix/console.h>
+#include <onix/memory.h>
 
 #define LOGK(fmt, args...) DEBUGK(fmt, ##args)
 
-#define SYSCALL_SIZE 64
+#define SYSCALL_SIZE 256
 
 handler_t syscall_table[SYSCALL_SIZE];
 
@@ -26,6 +27,7 @@ static void sys_default()
 
 static u32 sys_test()
 {
+    // LOGK("syscall test...\n");
     return 255;
 }
 
@@ -40,8 +42,6 @@ int32 sys_write(fd_t fd, char *buf, u32 len)
     return 0;
 }
 
-extern void task_yield();
-
 void syscall_init()
 {
     for (size_t i = 0; i < SYSCALL_SIZE; i++)
@@ -49,9 +49,11 @@ void syscall_init()
         syscall_table[i] = sys_default;
     }
 
-    syscall_table[SYS_NR_SLEEP] = task_sleep;
     syscall_table[SYS_NR_TEST] = sys_test;
+    syscall_table[SYS_NR_SLEEP] = task_sleep;
     syscall_table[SYS_NR_YIELD] = task_yield;
+
+    syscall_table[SYS_NR_BRK] = sys_brk;
 
     syscall_table[SYS_NR_WRITE] = sys_write;
 }
