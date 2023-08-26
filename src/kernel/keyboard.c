@@ -393,7 +393,7 @@ void keyboard_handler(int vector)
 
 u32 keyboard_read(char *buf, u32 count)
 {
-    lock_acquire(&lock);// 获取锁，确保线程安全
+    lock_acquire(&lock); // 获取锁，确保线程安全
     int nr = 0;
     while (nr < count)
     {
@@ -401,7 +401,7 @@ u32 keyboard_read(char *buf, u32 count)
         while (fifo_empty(&fifo))
         {
             waiter = running_task();
-            task_block(waiter, NULL, TASK_WAITING);
+            task_block(waiter, NULL, TASK_BLOCKED);
         }
         buf[nr++] = fifo_get(&fifo);
     }
@@ -419,7 +419,7 @@ void keyboard_init()
     fifo_init(&fifo, buf, BUFFER_SIZE);
     lock_init(&lock);
     waiter = NULL;
-    
+
     set_leds();
 
     set_interrupt_handler(IRQ_KEYBOARD, keyboard_handler);
