@@ -41,7 +41,7 @@ inw:
 
     xor eax, eax 
     mov edx, [ebp + 8] ; port
-    in al, dx; 将端口号 dx 的 8bit 输入到 ax
+    in ax, dx; 将端口号 dx 的 8bit 输入到 ax
 
     jmp $+2 ;一点点延迟
     jmp $+2 ;一点点延迟
@@ -58,7 +58,7 @@ outw:
     xor eax, eax 
     mov edx, [ebp + 8] ; port
     mov eax, [ebp + 12] ; value
-    out dx, al ;将 al 中的 8bit 输出到 dx
+    out dx, ax ;将 al 中的 8bit 输出到 dx
 
     jmp $+2 ;一点点延迟
     jmp $+2 ;一点点延迟
