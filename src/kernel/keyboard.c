@@ -5,6 +5,7 @@
 #include <onix/fifo.h>
 #include <onix/mutex.h>
 #include <onix/task.h>
+#include <onix/device.h>
 
 #define LOGK(fmt, args...) DEBUGK(fmt, ##args)
 
@@ -391,14 +392,13 @@ void keyboard_handler(int vector)
     }
 }
 
-u32 keyboard_read(char *buf, u32 count)
+u32 keyboard_read(void *dev, char *buf, u32 count)
 {
     lock_acquire(&lock); // 获取锁，确保线程安全
     int nr = 0;
     while (nr < count)
     {
-        // 当缓冲区为空时，等待并阻塞当前任务
-        while (fifo_empty(&fifo))
+        while (fifo_empty(&fifo))// 当缓冲区为空时，等待并阻塞当前任务
         {
             waiter = running_task();
             task_block(waiter, NULL, TASK_BLOCKED);
@@ -424,4 +424,9 @@ void keyboard_init()
 
     set_interrupt_handler(IRQ_KEYBOARD, keyboard_handler);
     set_interrupt_mask(IRQ_KEYBOARD, true);
+    
+    device_install(
+        DEV_CHAR, DEV_KEYBOARD,
+        NULL, "keyboard", 0,
+        NULL, keyboard_read, NULL);
 }
