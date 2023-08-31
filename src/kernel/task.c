@@ -407,7 +407,7 @@ void task_exit(int status)
         child->ppid = task->ppid;
     }
     LOGK("task 0x%p exit....\n", task);
-    
+
     task_t *parent = task_table[task->ppid];
     if (parent->state == TASK_WAITING &&
         (parent->waitpid == -1 || parent->waitpid == task->pid))
@@ -486,5 +486,7 @@ void task_init()
 
     idle_task = task_create(idle_thread, "idle", 1, KERNEL_USER);
     task_create(init_thread, "init", 5, NORMAL_USER);
+    task_create(test_thread, "test", 5, KERNEL_USER);
+    task_create(test_thread, "test", 5, KERNEL_USER);
     task_create(test_thread, "test", 5, KERNEL_USER);
 }
