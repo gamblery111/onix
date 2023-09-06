@@ -23,9 +23,6 @@ $(BUILD)/master.img: $(BUILD)/boot/boot.bin \
 # 执行硬盘分区
 	sfdisk $@ < $(SRC)/utils/master.sfdisk
 
-#虚拟机loop0被占用,卸载设备
-	-sudo umount /dev/loop0
-
 # 挂载设备
 	sudo losetup /dev/loop0 --partscan $@
 
@@ -59,9 +56,6 @@ $(BUILD)/slave.img: $(SRC)/utils/slave.sfdisk
 
 # 执行硬盘分区
 	sfdisk $@ < $(SRC)/utils/slave.sfdisk
-
-#loop1被占用,卸载设备
-	-sudo umount /dev/loop1
 
 # 挂载设备
 	sudo losetup /dev/loop0 --partscan $@
