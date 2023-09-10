@@ -21,6 +21,7 @@ enum device_subtype_t
     DEV_KEYBOARD,    // 键盘
     DEV_IDE_DISK,    // IDE 磁盘
     DEV_IDE_PART,    // IDE 磁盘分区
+    DEV_RAMDISK,     // 虚拟磁盘
 };
 
 // 设备控制命令
@@ -59,7 +60,7 @@ typedef struct device_t
     void *ptr;           // 设备指针
     list_t request_list; // 块设备请求链表
     bool direct;         // 磁盘寻道方向
-    
+
     // 设备控制
     int (*ioctl)(void *dev, int cmd, void *args, int flags);
     // 读设备
