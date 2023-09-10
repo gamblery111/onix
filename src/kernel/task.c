@@ -20,6 +20,7 @@ extern u32 volatile jiffies;
 extern u32 jiffy;
 extern bitmap_t kernel_map;
 extern tss_t tss;
+extern file_t file_table[];
 
 extern void task_switch(task_t *next);
 
@@ -284,6 +285,13 @@ static task_t *task_create(target_t target, const char *name, u32 priority, u32 
 
     task->umask = 0022; // 对应 0755
 
+    task->files[STDIN_FILENO] = &file_table[STDIN_FILENO];
+    task->files[STDOUT_FILENO] = &file_table[STDOUT_FILENO];
+    task->files[STDERR_FILENO] = &file_table[STDERR_FILENO];
+    task->files[STDIN_FILENO]->count++;
+    task->files[STDOUT_FILENO]->count++;
+    task->files[STDERR_FILENO]->count++;
+
     task->magic = ONIX_MAGIC;
 
     return task;
@@ -389,7 +397,7 @@ pid_t task_fork()
     // 拷贝页目录
     child->pde = (u32)copy_pde();
 
-        // 拷贝 pwd
+    // 拷贝 pwd
     child->pwd = (char *)alloc_kpage(1);
     strncpy(child->pwd, task->pwd, PAGE_SIZE);
 
@@ -439,7 +447,7 @@ void task_exit(int status)
             close(i);
         }
     }
-    
+
     // 将子进程的父进程赋值为自己的父进程
     for (size_t i = 2; i < NR_TASKS; i++)
     {
