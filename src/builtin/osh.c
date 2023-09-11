@@ -59,10 +59,10 @@ void builtin_logo()
 void builtin_test(int argc, char *argv[])
 {
     printf("osh test starting...\n");
-    while (true)
-    {
-        test();
-    }
+    // while (true)
+    // {
+    //     test();
+    // }
 }
 
 void builtin_pwd()
@@ -293,7 +293,7 @@ void builtin_exec(int argc, char *argv[])
     {
         // printf("fork after parent %d, %d, %d\n", pid, getpid(), getppid());
         pid_t child = waitpid(pid, &status);
-        printf("wait pid %d status %d %d\n", child, status, time());
+        // printf("wait pid %d status %d %d\n", child, status, time());
     }
     else
     {
@@ -453,7 +453,7 @@ static int cmd_parse(char *cmd, char *argv[], char token)
 
 int osh_main()
 {
-    builtin_test(0, NULL);
+    // builtin_test(0, NULL);
     
     memset(cmd, 0, sizeof(cmd));
     memset(cwd, 0, sizeof(cwd));
