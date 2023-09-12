@@ -695,6 +695,7 @@ void page_fault(
         // BMB;
         return;
     }
-
+    
+    LOGK("task 0x%p name %s brk 0x%p page fault\n", task, task->name, task->brk);
     panic("page fault!!!");
 }
